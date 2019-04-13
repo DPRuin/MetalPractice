@@ -16,7 +16,7 @@ class ViewController: NSViewController {
     @IBOutlet weak var label: NSTextField!
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         // Do any additional setup after loading the view.
         /*
          MTLCopyAllDevices() 仅适用OSX()
