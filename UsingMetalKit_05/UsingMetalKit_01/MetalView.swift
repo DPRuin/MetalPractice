@@ -28,9 +28,11 @@ class MetalView: MTKView {
     var rps: MTLRenderPipelineState?
     var commandQueue: MTLCommandQueue?
     
+    
     required init(coder: NSCoder) {
         super.init(coder: coder)
-        setup()
+        createBuffer()
+        registerShaders()
     }
     
     override func draw(_ dirtyRect: NSRect) {
@@ -38,14 +40,24 @@ class MetalView: MTKView {
 
         // Drawing code here.
         render()
-        
     }
     
-    private func setup() {
+    /*
+     vector_float4
+     通过类似数组下标来访问向量的成员分量,具体作法是用 . 操作符和组件名称访问(x,y,z,w,或它们的组合).除了 .xyzw组件名外,
+     下面的子向量也能通过:.lo / .hi(向量的前半部分和后半部分)来轻松访问,还有奇偶位的 .even / .odd子向量
+     */
+    // 结构体 vertex data
+    struct Vertex {
+        var position: vector_float4
+        var color: vector_float4
+    }
+    
+    private func createBuffer() {
         
         // Device 对GPU的抽象，处理命令队列中渲染和计算命令
         device = MTLCreateSystemDefaultDevice()!
-
+        
         guard let device = self.device else {
             return
         }
@@ -61,17 +73,26 @@ class MetalView: MTKView {
          让我们创建一组浮点数和一个缓冲器来保存三角形的顶点.
          
          第一步 储存顶点
-         第二步 shader着色器
          */
-        // x,y,z,w   w用来使坐标系齐次话
-        let vertex_data: [Float] = [-1.0, -1.0, 0, 1.0,
-                                    1.0, -1.0, 0, 1.0,
-                                    0, 1.0, 0, 1.0,
-                                    ]
+        
+        let vertex_data: [Vertex] = [
+            Vertex(position: [-1.0, -1.0, 0, 1.0], color: [1,0,0,1]),
+            Vertex(position: [1.0, -1.0, 0, 1.0], color: [0,1,0,1]),
+            Vertex(position: [0, 1.0, 0, 1], color: [0,0,1,1])
+        ]
+        
         // 计算数组大小
-        let data_size = vertex_data.count * MemoryLayout<Float>.size
+        let data_size = vertex_data.count * MemoryLayout<Vertex>.size
         
         vertexBuffer = device.makeBuffer(bytes: vertex_data, length: data_size, options: [])
+    }
+    
+    private func registerShaders() {
+        
+        guard let device = self.device else {
+            return
+        }
+        // 第二步 shader着色器
         // 绘制到屏幕的整个处理过程 pipeline管线
         
         // 函数（Shader）组成的库
