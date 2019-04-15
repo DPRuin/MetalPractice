@@ -28,7 +28,6 @@ class MetalView: MTKView {
     var rps: MTLRenderPipelineState?
     var commandQueue: MTLCommandQueue?
     
-    
     required init(coder: NSCoder) {
         super.init(coder: coder)
         setup()
