@@ -28,6 +28,7 @@ class MetalView: MTKView {
     var rps: MTLRenderPipelineState?
     var commandQueue: MTLCommandQueue?
     
+    var uniform_buffer: MTLBuffer?
     
     required init(coder: NSCoder) {
         super.init(coder: coder)
@@ -53,6 +54,71 @@ class MetalView: MTKView {
         var color: vector_float4
     }
     
+    // 矩阵
+    struct Matrix {
+        var m: [Float]
+        
+        init() {
+            m = [1,0,0,0,
+                 0,1,0,0,
+                 0,0,1,0,
+                 0,0,0,1
+            ]
+        }
+        
+        // 平移
+        func translationMatrix(_ matrix: Matrix, _ position: float3) -> Matrix {
+            var matrix = matrix
+            matrix.m[12] = position.x
+            matrix.m[13] = position.y
+            matrix.m[14] = position.z
+            return matrix
+        }
+        
+        // 缩放
+        func scalingMatrix(_ matrix: Matrix, _ scale: Float) -> Matrix {
+            var matrix = matrix
+            matrix.m[0] = scale
+            matrix.m[5] = scale
+            matrix.m[10] = scale
+            matrix.m[15] = 1.0
+            return matrix
+        }
+        
+        // 绕x，y，z轴旋转 下面不懂？？？？？？？
+        func rotationMatrix(_ matrix: Matrix, _ rot: float3) -> Matrix {
+            var matrix = matrix
+            matrix.m[0] = cos(rot.y) * cos(rot.z)
+            matrix.m[4] = cos(rot.z) * sin(rot.x) * sin(rot.y) - cos(rot.x) * sin(rot.z)
+            matrix.m[8] = cos(rot.x) * cos(rot.z) * sin(rot.y) + sin(rot.x) * sin(rot.z)
+            matrix.m[1] = cos(rot.y) * sin(rot.z)
+            matrix.m[5] = cos(rot.x) * cos(rot.z) + sin(rot.x) * sin(rot.y) * sin(rot.z)
+            matrix.m[9] = -cos(rot.z) * sin(rot.x) + cos(rot.x) * sin(rot.y) * sin(rot.z)
+            matrix.m[2] = -sin(rot.y)
+            matrix.m[6] = cos(rot.y) * sin(rot.x)
+            matrix.m[10] = cos(rot.x) * cos(rot.y)
+            matrix.m[15] = 1.0
+            
+            return matrix
+        }
+        
+        func modelMatrix(_ matrix: Matrix) -> Matrix {
+            var matrix = matrix
+            
+            // 绕z轴旋转
+            matrix = rotationMatrix(matrix, float3(0, 0, 0.1))
+            
+            // 向上移动半个屏幕的高度
+            matrix = translationMatrix(matrix, float3(0, 0.5, 0))
+
+            // 缩小原来的四分之一
+            matrix = scalingMatrix(matrix, 0.25)
+
+            return matrix
+        }
+        
+    }
+    
     private func createBuffer() {
         
         // Device 对GPU的抽象，处理命令队列中渲染和计算命令
@@ -74,7 +140,6 @@ class MetalView: MTKView {
          
          第一步 储存顶点
          */
-        
         let vertex_data: [Vertex] = [
             Vertex(position: [-1.0, -1.0, 0, 1.0], color: [1,0,0,1]),
             Vertex(position: [1.0, -1.0, 0, 1.0], color: [0,1,0,1]),
@@ -83,8 +148,13 @@ class MetalView: MTKView {
         
         // 计算数组大小
         let data_size = vertex_data.count * MemoryLayout<Vertex>.size
-        
         vertexBuffer = device.makeBuffer(bytes: vertex_data, length: data_size, options: [])
+        
+        // 给缓冲器分配内存
+        uniform_buffer = device.makeBuffer(length: MemoryLayout<Float>.size * 16, options: [])
+        let bufferPointer = uniform_buffer?.contents()
+        // memcpy c语言
+        memcpy(bufferPointer, Matrix().modelMatrix(Matrix()).m, MemoryLayout<Float>.size * 16)
     }
     
     private func registerShaders() {
@@ -166,6 +236,8 @@ class MetalView: MTKView {
         }
         encoder.setRenderPipelineState(rps)
         encoder.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
+        // setVertexBuffer 在drawPrimitives 之前，不然会报错
+        encoder.setVertexBuffer(uniform_buffer, offset: 0, index: 1)
         encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3, instanceCount: 1)
         
         encoder.endEncoding()

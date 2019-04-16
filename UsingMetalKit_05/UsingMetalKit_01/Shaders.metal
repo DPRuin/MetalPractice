@@ -25,9 +25,21 @@ struct Vertex {
     float4 color;
 };
 
+struct Uniforms {
+    float4x4 modelMatrix;
+};
+
 // 顶点着色器 负责点的位置
-vertex Vertex vertex_func(constant Vertex *vertices [[buffer(0)]], uint vid [[vertex_id]] ) {
-    return vertices[vid];
+vertex Vertex vertex_func(constant Vertex *vertices [[buffer(0)]],
+                          constant Uniforms &uniforms [[buffer(1)]],
+                          uint vid [[vertex_id]] ) {
+    float4x4 matrix = uniforms.modelMatrix;
+    Vertex in = vertices[vid];
+    Vertex out;
+    out.position = matrix * float4(in.position);
+    out.color = in.color;
+    
+    return out;
 }
 
 // 片段着色器 负责点的颜色
