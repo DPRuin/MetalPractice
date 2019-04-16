@@ -12,6 +12,7 @@
 		7EC3A4BB2261D42A0035D191 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7EC3A4B92261D42A0035D191 /* Main.storyboard */; };
 		7EC3A4C42261DA570035D191 /* MetalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EC3A4C32261DA570035D191 /* MetalView.swift */; };
 		7EC3A4C6226454310035D191 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 7EC3A4C5226454310035D191 /* Shaders.metal */; };
+		7EC3A4C82265AFE50035D191 /* MathUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EC3A4C72265AFE50035D191 /* MathUtils.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -23,6 +24,7 @@
 		7EC3A4BD2261D42A0035D191 /* UsingMetalKit_01.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = UsingMetalKit_01.entitlements; sourceTree = "<group>"; };
 		7EC3A4C32261DA570035D191 /* MetalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetalView.swift; sourceTree = "<group>"; };
 		7EC3A4C5226454310035D191 /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
+		7EC3A4C72265AFE50035D191 /* MathUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MathUtils.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +60,7 @@
 				7EC3A4B32261D4290035D191 /* AppDelegate.swift */,
 				7EC3A4C32261DA570035D191 /* MetalView.swift */,
 				7EC3A4C5226454310035D191 /* Shaders.metal */,
+				7EC3A4C72265AFE50035D191 /* MathUtils.swift */,
 				7EC3A4B72261D42A0035D191 /* Assets.xcassets */,
 				7EC3A4B92261D42A0035D191 /* Main.storyboard */,
 				7EC3A4BC2261D42A0035D191 /* Info.plist */,
@@ -137,6 +140,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7EC3A4C42261DA570035D191 /* MetalView.swift in Sources */,
+				7EC3A4C82265AFE50035D191 /* MathUtils.swift in Sources */,
 				7EC3A4B42261D4290035D191 /* AppDelegate.swift in Sources */,
 				7EC3A4C6226454310035D191 /* Shaders.metal in Sources */,
 			);
