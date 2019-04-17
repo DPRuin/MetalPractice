@@ -43,7 +43,8 @@ public func imageFromPixels(width: Int, height: Int) -> CIImage {
              
              每个像素有多个射线，这样就可以模拟漫反射
              */
-            let ns = 100
+            // 100 渲染时间在18秒，改为10 时间为1.8秒
+            let ns = 10
             var col = float3()
             for _ in 0..<ns {
                 // drand48 产生[0, 1]之间均匀分布的随机数

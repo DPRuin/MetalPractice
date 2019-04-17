@@ -19,7 +19,8 @@ struct Ray {
 func color(ray: Ray, world: Hitable) -> float3 {
     var rec = Hit_record()
     // Float.infinity 无穷
-    if world.hit(ray: ray, tmin: 0, tmax: Float.infinity, rec: &rec) { // 撞到
+    // tmin 由 0.0 改为 0.01 可以有效去除图片中的小的波纹
+    if world.hit(ray: ray, tmin: 0.01, tmax: Float.infinity, rec: &rec) { // 撞到
         let target = rec.p + rec.normal + random_in_unit_sphere()
         return 0.5 * color(ray: Ray(origin: rec.p, direction: target - rec.p), world: world)
     } else {
