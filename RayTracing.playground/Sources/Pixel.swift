@@ -24,28 +24,35 @@ public func imageFromPixels(width: Int, height: Int) -> CIImage {
     var pixel = Pixel(red: 0, green: 0, blue: 0)
     var pixels = [Pixel](repeating: pixel, count: width * height)
     
-    let lower_left_corner = float3(-2.0, 1.0, -1.0)
-    let horizontal = float3(4.0, 0, 0)
-    let vertical = float3(0, -2.0, 0)
-    let origin = float3(0, 0, 0)
-    
+    // 添加两个球
     let world = Hitable_list()
     var object = Sphere(center: float3(0, -100.5, -1), radius: 100)
     world.add(h: object)
-    
     object = Sphere(center: float3(0, 0, -1), radius: 0.5)
     world.add(h: object)
     
+    let cam = camera()
     for i in 0..<width {
         for j in 0..<height {
-            let u = Float(i) / Float(width)
-            let v = Float(j) / Float(height)
-            let ray = Ray(origin: origin, direction: lower_left_corner + u * horizontal + v * vertical)
-            
-            let col = color(ray: ray, world: world)
+            /*
+             解决球体边缘有锯齿问题
+             注意到边缘的锯齿效应,这是因为我们没有对边缘像素使用任何颜色混合.
+             要修复它,我们需要用随机生成值在一定范围内进行多次颜色采样,这样我们能把多个颜色混合在一起达到反锯齿效应的作用
+             
+             用随机生成值进行多次颜色采样
+             */
+            let ns = 100
+            var col = float3()
+            for _ in 0..<ns {
+                // drand48 产生[0, 1]之间均匀分布的随机数
+                let u = (Float(i) + Float(drand48())) / Float(width)
+                let v = (Float(j) + Float(drand48())) / Float(height)
+                let ray = cam.get_ray(u: u, v: v)
+                col = col + color(ray: ray, world: world)
+            }
+            col = col / float3(Float(ns))
             
             pixel = Pixel(red: UInt8(col.x * 255), green: UInt8(col.y * 255), blue: UInt8(col.z * 255))
-            // pixel = Pixel(red: 0, green: UInt8(Double(i * 255 / width)), blue: UInt8(Double(j * 255 / height)))
             pixels[i + j * width] = pixel
         }
     }

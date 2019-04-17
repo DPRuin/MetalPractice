@@ -27,3 +27,24 @@ func color(ray: Ray, world: Hitable) -> float3 {
         return (1.0 - t) * float3(x: 1.0, y: 1.0, z: 1.0) + t * float3(x: 0.5, y: 0.7, z: 1.0)
     }
 }
+
+struct camera {
+    
+    let lower_left_corner: float3
+    let horizontal: float3
+    let vertical: float3
+    let origin: float3
+    
+    init() {
+        lower_left_corner = float3(-2.0, 1.0, -1.0)
+        horizontal = float3(4.0, 0, 0)
+        vertical = float3(0, -2.0, 0)
+        origin = float3(0, 0, 0)
+    }
+    
+    // 获取射线
+    func get_ray(u: Float, v: Float) -> Ray {
+        return Ray(origin: origin, direction: lower_left_corner + u * horizontal + v * vertical)
+    }
+    
+}
