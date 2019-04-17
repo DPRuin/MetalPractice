@@ -27,18 +27,3 @@ func color(ray: Ray, world: Hitable) -> float3 {
         return (1.0 - t) * float3(x: 1.0, y: 1.0, z: 1.0) + t * float3(x: 0.5, y: 0.7, z: 1.0)
     }
 }
-
-// 射线是否撞到球体  ?????
-func hit_sphere(center: float3, radius: Float, ray: Ray ) -> Float {
-    let oc = ray.origin - center
-    let a = dot(ray.direction, ray.direction) // 点积
-    let b = 2.0 * dot(oc, ray.direction)
-    let c = dot(oc, oc) - radius * radius
-    let discriminant = b * b - 4 * a * c
-    if discriminant < 0 {
-        return -1.0
-    } else {
-        return (-b - Float(sqrt(Double(discriminant)))) / 2.0 * a
-    }
-    
-}

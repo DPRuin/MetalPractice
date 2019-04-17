@@ -29,8 +29,9 @@ class Sphere: Hitable {
         self.radius = radius
     }
     
-    // tmin - tmax 之间的撞击
+    // tmin - tmax 之间的撞击  射线是否撞击到球体
     func hit(ray: Ray, tmin: Float, tmax: Float, rec: inout Hit_record) -> Bool {
+        // ？？？
         let oc = ray.origin - center
         let a = dot(ray.direction, ray.direction) // 点积
         let b = dot(oc, ray.direction)
@@ -72,3 +73,4 @@ class Hitable_list: Hitable {
         return hit_anything
     }
 }
+
