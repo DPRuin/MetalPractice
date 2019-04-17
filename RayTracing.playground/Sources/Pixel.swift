@@ -40,6 +40,8 @@ public func imageFromPixels(width: Int, height: Int) -> CIImage {
              要修复它,我们需要用随机生成值在一定范围内进行多次颜色采样,这样我们能把多个颜色混合在一起达到反锯齿效应的作用
              
              用随机生成值进行多次颜色采样
+             
+             每个像素有多个射线，这样就可以模拟漫反射
              */
             let ns = 100
             var col = float3()

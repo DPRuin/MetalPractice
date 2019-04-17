@@ -20,7 +20,8 @@ func color(ray: Ray, world: Hitable) -> float3 {
     var rec = Hit_record()
     // Float.infinity 无穷
     if world.hit(ray: ray, tmin: 0, tmax: Float.infinity, rec: &rec) { // 撞到
-        return 0.5 * float3(rec.normal.x + 1.0 , rec.normal.y + 1.0, rec.normal.z + 1.0)
+        let target = rec.p + rec.normal + random_in_unit_sphere()
+        return 0.5 * color(ray: Ray(origin: rec.p, direction: target - rec.p), world: world)
     } else {
         let unit_direction = normalize(ray.direction)
         let t = 0.5 * (unit_direction.y + 1.0)
@@ -47,4 +48,16 @@ struct camera {
         return Ray(origin: origin, direction: lower_left_corner + u * horizontal + v * vertical)
     }
     
+}
+
+/*
+ 漫反射材料反射出的光线方向是随机的
+ 返回随机的方向
+ */
+func random_in_unit_sphere() -> float3 {
+    var p = float3()
+    repeat {
+        p = 2.0 * float3(Float(drand48()), Float(drand48()), Float(drand48()))
+    } while dot(p, p) >= 1.0
+    return p
 }
