@@ -29,12 +29,20 @@ public func imageFromPixels(width: Int, height: Int) -> CIImage {
     let vertical = float3(0, -2.0, 0)
     let origin = float3(0, 0, 0)
     
+    let world = Hitable_list()
+    var object = Sphere(center: float3(0, -100.5, -1), radius: 100)
+    world.add(h: object)
+    
+    object = Sphere(center: float3(0, 0, -1), radius: 0.5)
+    world.add(h: object)
+    
     for i in 0..<width {
         for j in 0..<height {
             let u = Float(i) / Float(width)
             let v = Float(j) / Float(height)
             let ray = Ray(origin: origin, direction: lower_left_corner + u * horizontal + v * vertical)
-            let col = color(ray: ray)
+            
+            let col = color(ray: ray, world: world)
             
             pixel = Pixel(red: UInt8(col.x * 255), green: UInt8(col.y * 255), blue: UInt8(col.z * 255))
             // pixel = Pixel(red: 0, green: UInt8(Double(i * 255 / width)), blue: UInt8(Double(j * 255 / height)))

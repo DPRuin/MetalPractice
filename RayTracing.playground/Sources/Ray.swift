@@ -16,18 +16,16 @@ struct Ray {
 }
 
 // 获取颜色
-func color(ray: Ray) -> float3 {
-    let minusZ = float3(0, 0, -1.0)
-    var t  = hit_sphere(center: minusZ, radius: 0.5, ray: ray)
-    if t > 0.0 { // 未撞倒??
-        let norm = normalize(ray.point_at_parameter(t: t) - minusZ)
-        return 0.5 * float3(norm.x + 1.0 , norm.y + 1.0, norm.z + 1.0)
+func color(ray: Ray, world: Hitable) -> float3 {
+    var rec = Hit_record()
+    // Float.infinity 无穷
+    if world.hit(ray: ray, tmin: 0, tmax: Float.infinity, rec: &rec) { // 撞到
+        return 0.5 * float3(rec.normal.x + 1.0 , rec.normal.y + 1.0, rec.normal.z + 1.0)
+    } else {
+        let unit_direction = normalize(ray.direction)
+        let t = 0.5 * (unit_direction.y + 1.0)
+        return (1.0 - t) * float3(x: 1.0, y: 1.0, z: 1.0) + t * float3(x: 0.5, y: 0.7, z: 1.0)
     }
-    
-    let unit_direction = normalize(ray.direction)
-    t = 0.5 * (unit_direction.y + 1.0)
-    return (1.0 - t) * float3(x: 1.0, y: 1.0, z: 1.0) + t * float3(x: 0.5, y: 0.7, z: 1.0)
-    
 }
 
 // 射线是否撞到球体  ?????
