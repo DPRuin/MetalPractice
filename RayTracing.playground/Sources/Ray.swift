@@ -16,13 +16,18 @@ struct Ray {
 }
 
 // 获取颜色
-func color(ray: Ray, world: Hitable) -> float3 {
-    var rec = Hit_record()
+// depth深度因子,这样当射线接触到物体时我们就能够通过递归调用这个函数来更精确地计算颜色
+func color(ray: Ray, world: Hitable, depth: Int) -> float3 {
     // Float.infinity 无穷
     // tmin 由 0.0 改为 0.01 可以有效去除图片中的小的波纹
-    if world.hit(ray: ray, tmin: 0.01, tmax: Float.infinity, rec: &rec) { // 撞到
-        let target = rec.p + rec.normal + random_in_unit_sphere()
-        return 0.5 * color(ray: Ray(origin: rec.p, direction: target - rec.p), world: world)
+    if let rec = world.hit(ray: ray, tmin: 0.01, tmax: Float.infinity) {// 撞到
+        var scattered = ray
+        var attenuation = float3()
+        if (depth < 50) && rec.material_pointer.scatter(ray_in: ray, rec: rec, attenuation: &attenuation, scattered: &scattered) {// depth 50
+            return attenuation * color(ray: scattered, world: world, depth: depth + 1)
+        } else {
+            return float3(x: 0, y: 0, z: 0)
+        }
     } else {
         let unit_direction = normalize(ray.direction)
         let t = 0.5 * (unit_direction.y + 1.0)
