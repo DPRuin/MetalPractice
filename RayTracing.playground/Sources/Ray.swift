@@ -20,7 +20,7 @@ struct Ray {
 func color(ray: Ray, world: Hitable, depth: Int) -> float3 {
     // Float.infinity 无穷
     // tmin 由 0.0 改为 0.01 可以有效去除图片中的小的波纹
-    if let rec = world.hit(ray: ray, tmin: 0.01, tmax: Float.infinity) {// 撞到
+    if let rec = world.hit(ray: ray, tmin: 0.001, tmax: Float.infinity) {// 撞到
         var scattered = ray
         var attenuation = float3()
         if (depth < 50) && rec.material_pointer.scatter(ray_in: ray, rec: rec, attenuation: &attenuation, scattered: &scattered) {// depth 50

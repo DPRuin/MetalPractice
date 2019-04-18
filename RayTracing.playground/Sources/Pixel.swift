@@ -26,16 +26,16 @@ public func imageFromPixels(width: Int, height: Int) -> CIImage {
     
     // 添加两个球
     let world = Hitable_list()
-    var object = Sphere(center: float3(0, -100.5, -1), radius: 100,material: Lambertian(albedo: float3(0, 0.7, 0.3)))
+    var object = Sphere(center: float3(0, -100.5, -1), radius: 100,material: Lambertian(albedo: float3(x: 0.3, y: 0, z: 0)))
     world.add(h: object)
     
-    object = Sphere(center: float3(x: 1, y: 0, z: -1.1), radius: 0.5, material: Metal(albedo: float3(x: 0.8, y: 0.6, z: 0.2), fuzz: 0.7))
+    object = Sphere(center: float3(x: 1, y: 0, z: -1), radius: 0.5, material: Metal(albedo: float3(x: 0.8, y: 0.6, z: 0.2), fuzz: 0.7))
     world.add(h: object)
     
-    object = Sphere(center: float3(-1, 0, -1.1), radius: 0.5, material: Metal(albedo: float3(x: 0.8, y: 0.8, z: 0.8), fuzz: 0.1))
+    object = Sphere(center: float3(-1, 0, -1), radius: 0.5, material: Dielectric())
     world.add(h: object)
     
-    object = Sphere(center: float3(0, 0, -1), radius: 0.5, material: Lambertian(albedo: float3(x: 0.3, y: 0, z: 0)))
+    object = Sphere(center: float3(0, 0, -1), radius: 0.5, material: Lambertian(albedo: float3(x: 0, y: 0.7, z: 0.3)))
     world.add(h: object)
     
     let cam = camera()
