@@ -20,7 +20,7 @@ struct Ray {
 func color(ray: Ray, world: Hitable, depth: Int) -> float3 {
     // Float.infinity 无穷
     // tmin 由 0.0 改为 0.01 可以有效去除图片中的小的波纹
-    if let rec = world.hit(ray: ray, tmin: 0.001, tmax: Float.infinity) {// 撞到
+    if let rec = world.hit(ray: ray, tmin: 0.01, tmax: Float.infinity) {// 撞到
         var scattered = ray
         var attenuation = float3()
         if (depth < 50) && rec.material_pointer.scatter(ray_in: ray, rec: rec, attenuation: &attenuation, scattered: &scattered) {// depth 50
@@ -35,18 +35,23 @@ func color(ray: Ray, world: Hitable, depth: Int) -> float3 {
     }
 }
 
-struct camera {
+struct Camera {
+    // 修复摄像机,这样我们从不同角度和距离来观察物体
+    let lower_left_corner, horizontal, vertical, origin, u, v, w: float3
+    var lens_radius: Float = 0.0
     
-    let lower_left_corner: float3
-    let horizontal: float3
-    let vertical: float3
-    let origin: float3
-    
-    init() {
-        lower_left_corner = float3(-2.0, 1.0, -1.0)
-        horizontal = float3(4.0, 0, 0)
-        vertical = float3(0, -2.0, 0)
-        origin = float3(0, 0, 0)
+    init(lookFrom: float3, lookAt: float3, vup: float3, vfov: Float, aspect: Float) {
+        
+        let theta = vfov * Float(Double.pi) / 180
+        let half_height = tan(theta / 2)
+        let half_width = aspect * half_height
+        origin = lookFrom
+        w = normalize(lookFrom - lookAt)
+        u = normalize(cross(vup, w))
+        v = cross(w, u)
+        lower_left_corner = origin - half_width * u - half_height * v - w
+        horizontal = 2 * half_width * u
+        vertical = 2 * half_height * v
     }
     
     // 获取射线

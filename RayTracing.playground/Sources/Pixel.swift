@@ -38,7 +38,11 @@ public func imageFromPixels(width: Int, height: Int) -> CIImage {
     object = Sphere(center: float3(0, 0, -1), radius: 0.5, material: Lambertian(albedo: float3(x: 0, y: 0.7, z: 0.3)))
     world.add(h: object)
     
-    let cam = camera()
+    let lookFrom = float3(10, 1.5, -5)
+    let lookAt = float3()
+    let vup = float3(0, -1, 0)
+    let cam = Camera(lookFrom: lookFrom, lookAt: lookAt, vup: vup, vfov: 15, aspect: Float(width) / Float(height))
+    
     for i in 0..<width {
         for j in 0..<height {
             /*

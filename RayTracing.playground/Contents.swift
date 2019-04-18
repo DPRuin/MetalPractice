@@ -1,7 +1,7 @@
 import Cocoa
 
-let width = 800
-let height = 400
+let width = 400
+let height = 200
 
 let t0 = CFAbsoluteTimeGetCurrent()
 
