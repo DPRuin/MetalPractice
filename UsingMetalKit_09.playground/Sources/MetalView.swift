@@ -26,6 +26,9 @@ public class MetalView: NSObject, MTKViewDelegate {
     
     public var device: MTLDevice?
     
+    // 用于立方体旋转
+    var rotation: Float = 0
+    
     public override init() {
         super.init()
         createBuffer()
@@ -33,6 +36,7 @@ public class MetalView: NSObject, MTKViewDelegate {
     }
     
     public func draw(in view: MTKView) {
+        update()
         render(in: view)
     }
     
@@ -88,16 +92,25 @@ public class MetalView: NSObject, MTKViewDelegate {
         index_buffer = device.makeBuffer(bytes: index_data, length: index_data.count * MemoryLayout<UInt16>.size, options: [])
         
         uniform_buffer = device.makeBuffer(length: MemoryLayout<Float>.size * 16, options: [])
+    }
+    
+    private func update() {
+        let scaled = scalingMatrix(scale: 0.5)
+        rotation = rotation + (1 / 100 * .pi / 4)
+        let rotatedY = rotationMatrix(angle: rotation, axis: float3(0, 1, 0))
+        let rotatedX = rotationMatrix(angle: .pi / 4, axis: float3(1, 0, 0))
+        let modelMatrix =  matrix_multiply(matrix_multiply(rotatedY, rotatedX), scaled)
         
         // 给缓冲器分配内存
         let bufferPointer = uniform_buffer?.contents()
         let projMatrix = projectionMatrix(near: 1, far: 100, aspect: 1, fovy: 1.1)
         // 视图矩阵 投影矩阵
-        let modelViewProjectionMatrix =  matrix_multiply(projMatrix, matrix_multiply(viewMatrix(), modelMatrix()))
+        let modelViewProjectionMatrix =  matrix_multiply(projMatrix, matrix_multiply(viewMatrix(), modelMatrix))
         
         var uniforms = Uniforms(modelViewProjectionMatrix: modelViewProjectionMatrix)
         // memcpy c语言,缓冲器指针来传递全局变量
         memcpy(bufferPointer, &uniforms, MemoryLayout<Uniforms>.size)
+        
     }
     
     private func registerShaders() {
