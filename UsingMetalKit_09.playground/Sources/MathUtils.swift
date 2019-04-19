@@ -66,13 +66,13 @@ struct Matrix {
         var matrix = matrix
         
         // 绕z轴旋转
-        matrix = rotationMatrix(matrix, float3(0, 0, 0.1))
+        // matrix = rotationMatrix(matrix, float3(0, 0, 0.1))
         
         // 向上移动半个屏幕的高度
-        matrix = translationMatrix(matrix, float3(0, 0.5, 0))
+        // matrix = translationMatrix(matrix, float3(0, 0.5, 0))
         
         // 缩小原来的四分之一
-        matrix = scalingMatrix(matrix, 0.25)
+        matrix = scalingMatrix(matrix, 0.5)
         
         return matrix
     }
