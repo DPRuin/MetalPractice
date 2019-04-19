@@ -87,11 +87,15 @@ public class MetalView: NSObject, MTKViewDelegate {
         vertexBuffer = device.makeBuffer(bytes: vertex_data, length: data_size, options: [])
         index_buffer = device.makeBuffer(bytes: index_data, length: index_data.count * MemoryLayout<UInt16>.size, options: [])
         
-        // 给缓冲器分配内存
         uniform_buffer = device.makeBuffer(length: MemoryLayout<Float>.size * 16, options: [])
+        
+        // 给缓冲器分配内存
         let bufferPointer = uniform_buffer?.contents()
-        // memcpy c语言
-        memcpy(bufferPointer, Matrix().modelMatrix(Matrix()).m, MemoryLayout<Float>.size * 16)
+        
+        let modelViewProjectionMatrix = modelMatrix()
+        var uniforms = Uniforms(modelViewProjectionMatrix: modelViewProjectionMatrix)
+        // memcpy c语言,缓冲器指针来传递全局变量
+        memcpy(bufferPointer, &uniforms, MemoryLayout<Uniforms>.size)
     }
     
     private func registerShaders() {
