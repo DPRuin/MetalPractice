@@ -91,8 +91,10 @@ public class MetalView: NSObject, MTKViewDelegate {
         
         // 给缓冲器分配内存
         let bufferPointer = uniform_buffer?.contents()
+        let projMatrix = projectionMatrix(near: 1, far: 100, aspect: 1, fovy: 1.1)
+        // 视图矩阵 投影矩阵
+        let modelViewProjectionMatrix =  matrix_multiply(projMatrix, matrix_multiply(viewMatrix(), modelMatrix()))
         
-        let modelViewProjectionMatrix = modelMatrix()
         var uniforms = Uniforms(modelViewProjectionMatrix: modelViewProjectionMatrix)
         // memcpy c语言,缓冲器指针来传递全局变量
         memcpy(bufferPointer, &uniforms, MemoryLayout<Uniforms>.size)
@@ -184,6 +186,10 @@ public class MetalView: NSObject, MTKViewDelegate {
             return
         }
         encoder.setRenderPipelineState(rps)
+        // 设置正面模式
+        encoder.setFrontFacing(.counterClockwise)
+        // 设置裁剪模式
+        encoder.setCullMode(.back)
         encoder.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
         // setVertexBuffer 在drawPrimitives 之前，不然会报错
         encoder.setVertexBuffer(uniform_buffer, offset: 0, index: 1)

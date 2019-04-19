@@ -70,3 +70,24 @@ func modelMatrix() -> matrix_float4x4 {
     return matrix_multiply(matrix_multiply(rotatedY, rotatedX), scaled)
 }
 
+// 视图矩阵
+func viewMatrix() -> matrix_float4x4 {
+    let cameraPosition = float3(0, 0, -3)
+    return translationMatrix(position: cameraPosition)
+}
+
+// 投影矩阵 aspect? fovy?
+func projectionMatrix(near: Float, far: Float, aspect: Float, fovy: Float ) -> matrix_float4x4 {
+    let scaleY = 1 / tan(fovy * 0.5)
+    let scaleX = scaleY / aspect
+    let scaleZ = -(far + near) / (far - near)
+    let scaleW = -2 * far * near / (far - near)
+    
+    let X = simd_float4(scaleX, 0, 0, 0)
+    let Y = simd_float4(0, scaleY, 0, 0)
+    let Z = simd_float4(0, 0, scaleZ, -1)
+    let W = simd_float4(0, 0, scaleW, 0)
+    
+    return matrix_float4x4(columns:(X, Y, Z, W))
+}
+
