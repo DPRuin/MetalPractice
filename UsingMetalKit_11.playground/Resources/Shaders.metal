@@ -32,7 +32,7 @@ kernel void compute(texture2d<float, access::write> output [[texture(0)]],
 {
     // 只简单地给纹理中的每个像素/位置设置了相同的颜色
     // output.write(float4(0, 0.5, 0.5, 1), gid);
-    
+
     /* 拿到纹理的width和height,
     然后根据像素在纹理中的位置来计算red和green的值,然后将新颜色写入回纹理中
      */
@@ -41,7 +41,7 @@ kernel void compute(texture2d<float, access::write> output [[texture(0)]],
     float red = float(gid.x) / float(width);
     float green = float(gid.y) / float(height);
     // output.write(float4(red, green, 0, 1), gid);
-    
+
     /*
      这是在着色中很常用的技术,叫做distance function.
      我们使用length函数来确定像素是否在屏幕中心也就是我们圆的中心的0.5倍之内.
@@ -49,13 +49,13 @@ kernel void compute(texture2d<float, access::write> output [[texture(0)]],
      最后,我们判断像素如果在内部就是黑色,否则就像原来一样,给它一个渐变色.
      */
     float2 uv = float2(gid) / float2(width, height);
-    uv = uv * 2.0 - 1.0;
+    // uv = uv * 2.0 - 1.0;
     /*
      如何根据到圆的距离改变背景颜色,而不是仅根据像素的绝对位置.
      我们通过计算像素到圆的距离来改变透明通道的值
      */
     float distance = dist(uv, float2(0), 0.5);
-    
+
     float xMax = width / height;
     float4 sun = float4(1, 0.7, 0, 1) * (1 - distance);
     float4 planet = float4(0);
@@ -66,7 +66,22 @@ kernel void compute(texture2d<float, access::write> output [[texture(0)]],
      在本例中,planet颜色和sun颜色用smootherstep作为权重值来插补
      */
     float4 pixel = mix(planet, sun, m);
-    output.write(pixel, gid);
+    // output.write(pixel, gid);
+    
+    // ----类似蓝色风格线
+    float3 color = float3(0.7);
+    // fmod 计算x的对y取模后的余数
+    if (fmod(uv.x, 0.1) < 0.005 || fmod(uv.y, 0.1) < 0.005) color = float3(0, 0, 1);
+    
+    float2 uv_ext = uv * 2.0 - 1.0;
+    // abs 取绝对值
+    if (abs(uv_ext.x) < 0.02 || abs(uv_ext.y) < 0.02) color = float3(1, 0, 0);
+    if (abs(uv_ext.x - uv_ext.y) < 0.02 || abs(uv_ext.x + uv_ext.y) < 0.02) color = float3(0, 1, 0);
+    output.write(float4(color, 1), gid);
+    
+    
+    // ----Inigo Quilez艺术图像
+    
     
 }
 
