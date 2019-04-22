@@ -47,8 +47,21 @@ kernel void compute(texture2d<float, access::write> output [[texture(0)]],
     uv = uv * 2.0 - 1.0;
     float radius = 0.5;
     float distance = length(uv) - radius;
-
-    output.write(distance < 0 ?  float4(1) : float4(0), gid);
+    
+    // z值，就可以获取球体的颜色
+    float planet = sqrt(radius * radius - uv.x * uv.x - uv.y * uv.y);
+    // z 值规范化为[0 1]
+    planet = planet / radius;
+    // 每个像素坐标的normal法
+    float3 normal = normalize(float3(uv.x, uv.y, planet));
+    
+    // 给光源一个圆周运动，x和y都是按圆的参数方程从-1到1
+    float3 source = normalize(float3(cos(timer), sin(timer), 1));
+    // 法线乘以规格化光源，光照模型
+    float light = dot(normal, source);
+    
+    output.write(distance < 0 ?  float4(float3(light), 1.0) : float4(0), gid);
+    
 }
 
 
