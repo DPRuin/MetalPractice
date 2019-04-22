@@ -3,7 +3,8 @@ import Cocoa
 import MetalKit
 
 // 类public 需要在Sources外调用
-public class MetalView: NSObject, MTKViewDelegate {
+// 继承NSWindowDelegate 可以在mac 获取鼠标点击
+public class MetalView:MTKView, NSWindowDelegate {
     
     /*
      MetalKit为原Metal框架带来大量改进和新特性
@@ -16,28 +17,47 @@ public class MetalView: NSObject, MTKViewDelegate {
      这里我们选择后者
      
      */
-    
-    public var device: MTLDevice?
     var cps: MTLComputePipelineState?
     var commandQueue: MTLCommandQueue?
     
     var timer:Float = 0
     var timerBuffer: MTLBuffer! // 存储timer
+    var position: NSPoint!
+    var mouseBuffer: MTLBuffer! // 存储position
     
-    public override init() {
-        super.init()
+    public override init(frame frameRect: CGRect, device: MTLDevice?) {
+        super.init(frame: frameRect, device: device)
         registerShaders()
     }
+    public required init(coder: NSCoder) {
+        super.init(coder: coder)
+    }
     
-    public func draw(in view: MTKView) {
-        render(in: view)
+    public override func draw(_ dirtyRect: NSRect) {
+        super.draw(dirtyRect)
+        render(in: self)
+    }
+    
+    public override func mouseDown(with event: NSEvent) {
+        super.mouseDown(with: event)
+        position = convertToLayer(event.locationInWindow)
+        
+        guard let layer = self.layer else {
+            return
+        }
+        let scale = layer.contentsScale
+        position.x = position.x * scale
+        position.y = position.y * scale
     }
     
     private func update() {
         timer = timer + 0.01
-        var bufferPointer = timerBuffer.contents()
+        let bufferPointer = timerBuffer.contents()
         // 发送新的值到缓冲器
         memcpy(bufferPointer, &timer, MemoryLayout<Float>.size)
+        
+        let mouseBufferPointer = mouseBuffer.contents()
+        memcpy(mouseBufferPointer, &position, MemoryLayout<NSPoint>.size)
     }
     
     private func registerShaders() {
@@ -47,6 +67,7 @@ public class MetalView: NSObject, MTKViewDelegate {
         }
         commandQueue = device.makeCommandQueue()
         timerBuffer = device.makeBuffer(length: MemoryLayout<Float>.size, options: [])
+        mouseBuffer = device.makeBuffer(length: MemoryLayout<NSPoint>.size, options: [])
         
         // 第二步 shader着色器
         // 绘制到屏幕的整个处理过程 pipeline管线
@@ -83,6 +104,7 @@ public class MetalView: NSObject, MTKViewDelegate {
         command_encoder.setComputePipelineState(cps)
         command_encoder.setTexture(drawable.texture, index: 0)
         command_encoder.setBuffer(timerBuffer, offset: 0, index: 1)
+        command_encoder.setBuffer(mouseBuffer, offset: 0, index: 2)
         update()
 
         // 每个线程组中线程数量
