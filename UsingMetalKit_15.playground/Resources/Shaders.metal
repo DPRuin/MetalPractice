@@ -13,7 +13,7 @@ using namespace metal;
 // 内核函数或计算着色器
 kernel void compute(texture2d<float, access::write> output [[texture(0)]],
                     texture2d<float, access::read> input [[texture(1)]],
-                    constant float &timer [[buffer(1)]],
+                    constant float &timer [[buffer(0)]],
                     uint2 gid [[thread_position_in_grid]])
 {
     int width = input.get_width();
@@ -24,8 +24,13 @@ kernel void compute(texture2d<float, access::write> output [[texture(0)]],
     float distance = length(uv) - radius;
     
     float4 color = input.read(gid);
+    uv = fmod(float2(gid) + float2(timer * 100, 0), float2(width, height));
+    color = input.read(uint2(uv));
+    
     
     output.write(distance < 0 ? color : float4(0), gid);
+    
+    
     
 }
 
